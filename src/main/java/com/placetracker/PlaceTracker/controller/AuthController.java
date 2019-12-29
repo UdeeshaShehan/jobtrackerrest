@@ -3,7 +3,9 @@ package com.placetracker.PlaceTracker.controller;
 
 import com.placetracker.PlaceTracker.configs.JwtTokenProvider;
 import com.placetracker.PlaceTracker.domain.PlaceSelfie;
+import com.placetracker.PlaceTracker.domain.Role;
 import com.placetracker.PlaceTracker.domain.User;
+import com.placetracker.PlaceTracker.repositories.RoleRepository;
 import com.placetracker.PlaceTracker.repositories.UserRepository;
 import com.placetracker.PlaceTracker.services.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +16,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.springframework.http.ResponseEntity.ok;
 
+@CrossOrigin(origins = { "http://localhost:3000", "http://localhost:4200",
+		"http://jobtrackerusidtest-app.s3-website-ap-southeast-1.amazonaws.com" })
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -34,6 +36,9 @@ public class AuthController {
 	UserRepository users;
 
 	@Autowired
+	private RoleRepository roleRepository;
+
+	@Autowired
 	private CustomUserDetailsService userService;
 
 	@GetMapping("/all")
@@ -45,14 +50,20 @@ public class AuthController {
 	@PostMapping("/login")
 	public ResponseEntity login(@RequestBody AuthBody data) {
 		try {
-			String username = data.getEmail();
-			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, data.getPassword()));
-			User user = this.users.findByEmail(username);
-			String token = jwtTokenProvider.createToken(username, user.getRoles());
+			String mobileNumber = data.getMobileNumber();
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(mobileNumber, data.getPassword()));
+			User user = this.users.findByMobileNumber(mobileNumber);
+			Set <Role> roles = new HashSet<>();
+			roles.add(roleRepository.findByRole(user.getRole()));
+			String token = jwtTokenProvider.createToken(mobileNumber, roles);
 			Map<Object, Object> model = new HashMap<>();
-			model.put("username", username);
+			model.put("mobileNumber", mobileNumber);
+			model.put("username", user.getFullname());
 			model.put("token", token);
 			model.put("id", user.getId());
+			model.put("roles", user.getRole());
+			model.put("organization", user.getOrganization());
+			model.put("mentorMobileNumber", user.getMentorMobileNumber());
 			return ok(model);
 		} catch (AuthenticationException e) {
 			throw new BadCredentialsException("Invalid email/password supplied");
@@ -62,7 +73,7 @@ public class AuthController {
 	@SuppressWarnings("rawtypes")
 	@PostMapping("/register")
 	public ResponseEntity register(@RequestBody User user) {
-		User userExists = userService.findUserByEmail(user.getEmail());
+		User userExists = userService.findUserByMobileNumber(user.getMobileNumber());
 		if (userExists != null) {
 			throw new BadCredentialsException("User with username: " + user.getEmail() + " already exists");
 		}
@@ -74,9 +85,12 @@ public class AuthController {
 
 	@PostMapping("/updateregitration")
 	public ResponseEntity updateregister(@RequestBody User user) {
-		User userExists = userService.findUserByEmail(user.getEmail());
+		User userExists = userService.findUserByMobileNumber(user.getMobileNumber());
 		if (userExists != null) {
 			user.setId(userExists.getId());
+			if(user.getPassword()== null || user.getPassword().isEmpty()) {
+				user.setPassword(userExists.getPassword());
+			}
 			userService.saveUser(user);
 			Map<Object, Object> model = new HashMap<>();
 			model.put("message", "User update successfully");
@@ -88,6 +102,14 @@ public class AuthController {
 	@GetMapping("/byid/{id}")
 	public ResponseEntity<User> getUsersById(@PathVariable(value = "id") String id) throws Exception{
 		return ResponseEntity.ok().body(userService.getUserById(id).get());
+	}
+
+	@GetMapping("/bycriteria")
+	public List<User> getUsersByCriteria( @RequestParam("fullname")String fullname,
+													@RequestParam("email")String email,
+													@RequestParam("mobileNumber")String mobileNumber,
+													@RequestParam("address")String address) throws Exception{
+		return userService.findByCriteriaUser(new User(email, address, mobileNumber, fullname, ""));
 	}
 
 	@DeleteMapping("/{id}")

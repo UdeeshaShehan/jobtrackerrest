@@ -27,30 +27,41 @@ public class CustomUserDetailsService implements UserDetailsService {
 	@Autowired
 	private PasswordEncoder bCryptPasswordEncoder;
 	
-	public User findUserByEmail(String email) {
-	    return userRepository.findByEmail(email);
+	public User findUserByMobileNumber(String mobileNumber) {
+	    return userRepository.findByMobileNumber(mobileNumber);
 	}
 
 	public List<User> findAllUser() {
 		return userRepository.findAll();
 	}
+
+	public List<User> findByCriteriaUser(User user) {
+		List<User> users = userRepository.findByFullnameRegexAndEmailRegexAndMobileNumberRegexAndAddressRegex(user.getFullname()+".*",
+				user.getEmail()+".*", user.getMobileNumber()+".*", user.getAddress()+".*");
+		return users;
+	}
 	
 	public void saveUser(User user) {
 	    user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 	    user.setEnabled(true);
-	    Role userRole = roleRepository.findByRole("USER");
-	    user.setRoles(new HashSet<>(Arrays.asList(userRole)));
+	    //Role userRole = roleRepository.findByRole("USER");
+		if(user.getRole() == null || user.getRole().isEmpty())
+	    	user.setRole("USER");
+		if(user.getOrganization() == null || user.getOrganization().isEmpty())
+			user.setOrganization("DEFAULT");
 	    userRepository.save(user);
 	}
-	public void updateUser(User user) {
+
+	/*public void updateUser(User user) {
 		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		user.setEnabled(true);
-		Role userRole = roleRepository.findByRole("USER");
-		user.setRoles(new HashSet<>(Arrays.asList(userRole)));
+		//Role userRole = roleRepository.findByRole("USER");
+		if(user.getRole() == null || user.getRole().isEmpty())
+			user.setRole("USER");
 		userRepository.save(user);
-	}
+	}*/
 
-	public void saveAdminUser(User user) {
+	/*public void saveAdminUser(User user) {
 		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		user.setEnabled(true);
 		Role userRole = roleRepository.findByRole("ADMIN");
@@ -63,14 +74,16 @@ public class CustomUserDetailsService implements UserDetailsService {
 		Role userRole = roleRepository.findByRole("ADMIN");
 		user.setRoles(new HashSet<>(Arrays.asList(userRole)));
 		userRepository.save(user);
-	}
+	}*/
 	
 	@Override
-	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+	public UserDetails loadUserByUsername(String mobileNumber) throws UsernameNotFoundException {
 
-	    User user = userRepository.findByEmail(email);
+	    User user = userRepository.findByMobileNumber(mobileNumber);
 	    if(user != null) {
-	        List<GrantedAuthority> authorities = getUserAuthority(user.getRoles());
+	    	Set<Role> roles = new HashSet();
+	    	roles.add(roleRepository.findByRole(user.getRole()));
+	        List<GrantedAuthority> authorities = getUserAuthority(roles);
 	        return buildUserForAuthentication(user, authorities);
 	    } else {
 	        throw new UsernameNotFoundException("username not found");
@@ -96,6 +109,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 	}
 	
 	private UserDetails buildUserForAuthentication(User user, List<GrantedAuthority> authorities) {
-	    return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
+	    return new org.springframework.security.core.userdetails.User(user.getMobileNumber(), user.getPassword(), authorities);
 	}
 }

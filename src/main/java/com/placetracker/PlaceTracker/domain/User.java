@@ -20,9 +20,31 @@ public class User {
 	private String mobileNumber;
 	private String password;
 	private String fullname;
+	private String mentorMobileNumber;
+	private String organization;
 	private boolean enabled;
-	@DBRef
-	private Set<Role> roles;
+	//@DBRef
+	private String role;
+	public User() {
+	}
+
+	public User(String email, String address, String mobileNumber, String fullname, String mentorMobileNumber, String organization) {
+		this.email = email;
+		this.address = address;
+		this.mobileNumber = mobileNumber;
+		this.fullname = fullname;
+		this.mentorMobileNumber = mentorMobileNumber;
+		this.organization = organization;
+	}
+
+	public User(String email, String address, String mobileNumber, String fullname, String mentorMobileNumber) {
+		this.email = email;
+		this.address = address;
+		this.mobileNumber = mobileNumber;
+		this.fullname = fullname;
+		this.mentorMobileNumber = mentorMobileNumber;
+	}
+
 	public String getId() {
 		return id;
 	}
@@ -70,11 +92,28 @@ public class User {
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
-	public Set<Role> getRoles() {
-		return roles;
+
+	public String getRole() {
+		return role;
 	}
-	public void setRoles(Set<Role> roles) {
-		this.roles = roles;
+
+	public void setRole(String role) {
+		this.role = role;
 	}
-	
+
+	public String getMentorMobileNumber() {
+		return mentorMobileNumber;
+	}
+
+	public void setMentorMobileNumber(String mentorMobileNumber) {
+		this.mentorMobileNumber = mentorMobileNumber;
+	}
+
+	public String getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(String organization) {
+		this.organization = organization;
+	}
 }

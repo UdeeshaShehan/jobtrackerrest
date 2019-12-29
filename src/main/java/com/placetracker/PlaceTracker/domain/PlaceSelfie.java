@@ -24,6 +24,8 @@ public class PlaceSelfie implements Serializable {
     private double longitude2;*/
     private Location firstLocation;
     private Location lastLocation;
+    private String address1;
+    private String address2;
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
     private Date firstSelfieDate;
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
@@ -34,7 +36,8 @@ public class PlaceSelfie implements Serializable {
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
     private Date dateOfJob;
     private String userName;
-    private String email;
+    private String mobileNumber;
+    private String mentorMobileNumber;
     private List<Location> locations;
 
 
@@ -44,7 +47,7 @@ public class PlaceSelfie implements Serializable {
     public PlaceSelfie(String _id, String firstSelfie, String lastSelfie, Location firstLocation, Location lastLocation,
                        Date firstSelfieDate,
                        Date lastSelfieDate, String jobName, int isJobAdded, String jobDescription,
-                       Date dateOfJob, String userName, String email) {
+                       Date dateOfJob, String userName, String mobileNumber, String mentorMobileNumber) {
         this.id = _id;
         this.firstSelfie = firstSelfie;
         this.lastSelfie = lastSelfie;
@@ -55,14 +58,15 @@ public class PlaceSelfie implements Serializable {
         this.jobDescription = jobDescription;
         this.dateOfJob = dateOfJob;
         this.userName = userName;
-        this.email = email;
+        this.mobileNumber = mobileNumber;
         this.firstLocation = firstLocation;
         this.lastLocation = lastLocation;
+        this.mentorMobileNumber = mentorMobileNumber;
     }
 
     public PlaceSelfie(String firstSelfie, String lastSelfie, Location firstLocation, Location lastLocation,
                        Date firstSelfieDate, Date lastSelfieDate, String jobName, int isJobAdded, String jobDescription,
-                        Date dateOfJob,  String userName, String email) {
+                        Date dateOfJob,  String userName, String mobileNumber, String mentorMobileNumber) {
         this.firstSelfie = firstSelfie;
         this.lastSelfie = lastSelfie;
         this.firstLocation = firstLocation;
@@ -74,7 +78,8 @@ public class PlaceSelfie implements Serializable {
         this.jobDescription = jobDescription;
         this.dateOfJob = dateOfJob;
         this.userName = userName;
-        this.email = email;
+        this.mobileNumber = mobileNumber;
+        this.mentorMobileNumber = mentorMobileNumber;
     }
 
     public PlaceSelfie(String id) {
@@ -190,11 +195,35 @@ public class PlaceSelfie implements Serializable {
         this.userName = userName;
     }
 
-    public String getEmail() {
-        return email;
+    public String getMobileNumber() {
+        return mobileNumber;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setMobileNumber(String mobileNumber) {
+        this.mobileNumber = mobileNumber;
+    }
+
+    public String getMentorMobileNumber() {
+        return mentorMobileNumber;
+    }
+
+    public void setMentorMobileNumber(String mentorMobileNumber) {
+        this.mentorMobileNumber = mentorMobileNumber;
+    }
+
+    public String getAddress1() {
+        return address1;
+    }
+
+    public void setAddress1(String address1) {
+        this.address1 = address1;
+    }
+
+    public String getAddress2() {
+        return address2;
+    }
+
+    public void setAddress2(String address2) {
+        this.address2 = address2;
     }
 }

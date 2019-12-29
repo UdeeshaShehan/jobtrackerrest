@@ -13,6 +13,14 @@ public class Role {
     @Indexed(unique = true, direction = IndexDirection.DESCENDING, dropDups = true)
 
     private String role;
+
+	public Role() {
+	}
+
+	public Role(String role) {
+		this.role = role;
+	}
+
 	public String getId() {
 		return id;
 	}
